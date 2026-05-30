@@ -9,19 +9,21 @@ export default async function AboutPage() {
       <h1 className="font-display text-3xl">About this site</h1>
       <p>
         A personalised lens on the {meta.total.toLocaleString()}-session SXSW London 2026 programme, tuned for Alex
-        at Gocertify. The intent is to cut a six-day, fourteen-venue programme down to the sessions most likely to be
-        worth your time as a technical attendee.
+        at Gocertify. The intent is to cut a six-day programme down to the sessions most likely to be worth your time
+        as a product designer with a strong technical streak.
       </p>
 
       <section>
         <h2 className="font-display text-xl">How the match score works</h2>
         <p>
-          Each session gets a 0-100 score combining two signals: SXSW's own category tags (with strong positive weights
-          on <em>For Techies</em>, <em>Technology &amp; AI</em>, <em>Venture</em>, and Society Rewired, and small negative
-          weights on pure-entertainment tracks like music sets, film screenings, and morning Zumba classes), and a
-          keyword pass over the session title, subtitle and description. The keyword pass rewards mentions of AI, LLMs,
-          agentic systems, ML, infrastructure, developer tooling, security, identity/verification (Gocertify's home turf),
-          and core startup/venture language.
+          Each session gets a 0-100 score combining two signals: SXSW's own category tags and a keyword pass over the
+          session title, subtitle and description. The heaviest positive weights go to design - <em>For Designers</em>,{" "}
+          <em>Design</em>, the UI/UX designer track, and keyword hits on UI, UX, product design, design systems and
+          interaction design - reflecting a product-design lens. Tech and AI are weighted strongly too (<em>For Techies</em>,{" "}
+          <em>Technology &amp; AI</em>, plus AI, LLMs, agentic systems, ML, engineering and identity/verification, which is
+          Gocertify's home turf), and a session that sits at the <strong>intersection of AI and design</strong> gets an
+          extra bonus. Pure-entertainment tracks - music sets, film screenings, morning Zumba - carry small negative
+          weights.
         </p>
         <ul className="mt-3 list-disc pl-5 text-sm">
           <li><strong>75-100</strong> — Top pick. Don't miss it.</li>
@@ -55,7 +57,7 @@ export default async function AboutPage() {
         <p>
           Keyword scoring is fast but blunt - a description that mentions AI in passing scores the same as one where AI
           is the topic. Sessions with missing or thin descriptions will look worse than they are. If you spot
-          mis-scoring, the weights in <code>preprocess.py</code> are easy to tune.
+          mis-scoring, the weights in <code>rescore.py</code> are easy to tune - edit them and re-run the script.
         </p>
       </section>
     </article>
