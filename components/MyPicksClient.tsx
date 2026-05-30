@@ -1,5 +1,6 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Session } from "@/lib/types";
 import { useShortlist } from "@/lib/store";
 import { findConflicts, conflictsBySession } from "@/lib/conflicts";
@@ -22,8 +23,21 @@ function groupByVenue(items: Session[]): [string, Session[]][] {
 }
 
 export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const { ids, clear, ready } = useShortlist();
-  const [byVenue, setByVenue] = useState(false);
+  // Read from the URL so back-navigation restores the grouping; reset on fresh visit.
+  const [byVenue, setByVenue] = useState(() => searchParams.get("group") === "venue");
+
+  const firstSync = useRef(true);
+  useEffect(() => {
+    if (firstSync.current) {
+      firstSync.current = false;
+      return;
+    }
+    router.replace(byVenue ? `${pathname}?group=venue` : pathname, { scroll: false });
+  }, [byVenue, pathname, router]);
 
   const picks = useMemo(
     () => allSessions.filter((s) => ids.has(s.id)).sort((a, b) => (a.start! < b.start! ? -1 : 1)),

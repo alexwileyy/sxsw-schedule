@@ -1,9 +1,14 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Session, Meta } from "@/lib/types";
 import { fmtDayLong, fmtDayShort, londonDayKey, plain } from "@/lib/format";
 import { SessionCard } from "./SessionCard";
 import { useShortlist } from "@/lib/store";
+
+// Filter names can contain commas/ampersands, so multi-value params are joined
+// with "~" (which the names never contain) and url-encoded by URLSearchParams.
+const splitParam = (v: string | null) => (v ? v.split("~").filter(Boolean) : []);
 
 type Props = { sessions: Session[]; meta: Meta };
 
@@ -15,17 +20,46 @@ const SORT_OPTIONS = [
 type SortId = (typeof SORT_OPTIONS)[number]["id"];
 
 export function ScheduleBrowser({ sessions, meta }: Props) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const days = meta.days;
-  const [day, setDay] = useState<string>(days[0] ?? "");
-  const [query, setQuery] = useState("");
-  const [cats, setCats] = useState<Set<string>>(new Set());
-  const [venues, setVenues] = useState<Set<string>>(new Set());
-  const [minScore, setMinScore] = useState<number>(0);
-  const [savedOnly, setSavedOnly] = useState(false);
-  const [sort, setSort] = useState<SortId>("time");
+  // Initialise from the URL so a back-navigation (which returns to the same URL)
+  // restores the day/filters. A fresh visit to "/" has no params and resets.
+  const [day, setDay] = useState<string>(() => searchParams.get("day") ?? days[0] ?? "");
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
+  const [cats, setCats] = useState<Set<string>>(() => new Set(splitParam(searchParams.get("cats"))));
+  const [venues, setVenues] = useState<Set<string>>(() => new Set(splitParam(searchParams.get("venues"))));
+  const [minScore, setMinScore] = useState<number>(() => Number(searchParams.get("min")) || 0);
+  const [savedOnly, setSavedOnly] = useState(() => searchParams.get("saved") === "1");
+  const [sort, setSort] = useState<SortId>(() => (searchParams.get("sort") === "score" ? "score" : "time"));
   const [showFilters, setShowFilters] = useState(false);
 
   const { has } = useShortlist();
+
+  // Mirror the live filter state into the URL (replace, so we don't spam history),
+  // skipping the first run so the initial mount doesn't rewrite the URL and disturb
+  // scroll restoration. Defaults are omitted to keep the URL clean. This is a
+  // client-only URL update on a static page (no server refetch), so it's cheap to
+  // run on every change and avoids losing state on a quick change-then-navigate.
+  const firstSync = useRef(true);
+  useEffect(() => {
+    if (firstSync.current) {
+      firstSync.current = false;
+      return;
+    }
+    const params = new URLSearchParams();
+    if (day && day !== days[0]) params.set("day", day);
+    if (query) params.set("q", query);
+    if (sort !== "time") params.set("sort", sort);
+    if (minScore > 0) params.set("min", String(minScore));
+    if (savedOnly) params.set("saved", "1");
+    if (cats.size) params.set("cats", [...cats].join("~"));
+    if (venues.size) params.set("venues", [...venues].join("~"));
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [day, query, sort, minScore, savedOnly, cats, venues, days, pathname, router]);
 
   // Pre-index by day in London tz
   const byDay = useMemo(() => {
