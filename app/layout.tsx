@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
 import { SiteNav } from "@/components/SiteNav";
+import { BackToTop } from "@/components/BackToTop";
 
 export const metadata: Metadata = {
   title: "SXSW London 2026 - Alex's Schedule",
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="border-t border-black/10 bg-sxsw-cream py-6 text-center text-xs text-black/50">
           Built for Alex @ Gocertify · Recommendations tuned to the For Techies track
         </footer>
+        <BackToTop />
       </body>
     </html>
   );
