@@ -25,7 +25,7 @@ export function SessionCard({ s, conflictsWith }: { s: Session; conflictsWith?: 
             {s.canceled && <span className="rounded bg-red-100 px-1.5 py-0.5 font-semibold uppercase text-red-700">Cancelled</span>}
             {s.featured && !s.canceled && <span className="rounded bg-sxsw-lime/70 px-1.5 py-0.5 font-semibold uppercase text-sxsw-black">Featured</span>}
           </div>
-          <h3 className="mt-1 font-semibold leading-tight text-sxsw-black group-hover:text-sxsw-plum">
+          <h3 className="mt-1 break-words font-semibold leading-tight text-sxsw-black group-hover:text-sxsw-plum">
             {s.title}
           </h3>
           {s.venue && (

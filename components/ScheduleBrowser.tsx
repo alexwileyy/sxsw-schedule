@@ -264,7 +264,7 @@ export function ScheduleBrowser({ sessions, meta }: Props) {
             </div>
           )}
           {grouped.map(([hour, items]) => (
-            <section key={hour} className="grid gap-3 sm:grid-cols-[80px_1fr]">
+            <section key={hour} className="grid grid-cols-1 gap-3 sm:grid-cols-[80px_1fr]">
               <div className="sticky top-20 hidden self-start sm:block">
                 <div className="font-mono text-xl font-bold text-sxsw-plum">{hour}</div>
                 <div className="text-xs text-black/40">{items.length} on</div>
