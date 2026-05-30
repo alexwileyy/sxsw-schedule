@@ -5,7 +5,13 @@ import { SiteNav } from "@/components/SiteNav";
 
 export const metadata: Metadata = {
   title: "SXSW London 2026 - Alex's Schedule",
-  description: "Personalised schedule visualiser for SXSW London 2026, tuned for Gocertify's technical track."
+  description: "Personalised schedule visualiser for SXSW London 2026, tuned for Gocertify's technical track.",
+  // Short label shown under the icon when added to the iOS home screen.
+  appleWebApp: {
+    title: "SXSW 2026",
+    capable: true,
+    statusBarStyle: "default"
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
