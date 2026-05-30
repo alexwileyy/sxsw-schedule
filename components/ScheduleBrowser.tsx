@@ -61,6 +61,44 @@ export function ScheduleBrowser({ sessions, meta }: Props) {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }, [day, query, sort, minScore, savedOnly, cats, venues, days, pathname, router]);
 
+  // The day-tab row sticks below the top header once scrolled past, turning into a
+  // sub-nav bar. We measure the header height (the sticky offset) and detect the
+  // "stuck" state from the bar's own position: when it pins, its top equals the
+  // header height. A scroll listener avoids the containing-block pitfalls of a
+  // sentinel inside the space-y wrapper.
+  const barRef = useRef<HTMLDivElement>(null);
+  const [headerH, setHeaderH] = useState(57);
+  const [barH, setBarH] = useState(0);
+  const [stuck, setStuck] = useState(false);
+
+  useEffect(() => {
+    const header = document.querySelector("header");
+    const measure = () => setHeaderH(header?.offsetHeight ?? 57);
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const el = barRef.current;
+      if (el) setStuck(el.getBoundingClientRect().top <= headerH);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [headerH]);
+
+  // Re-measure the bar once it sticks (padding is added then), so the hour-label
+  // offset clears the now-taller bar.
+  useEffect(() => {
+    setBarH(barRef.current?.offsetHeight ?? 0);
+  }, [stuck, headerH]);
+
+  // Offset the timeline's sticky hour labels below the stuck bar so they don't tuck
+  // behind it; when the bar isn't stuck the original 80px (top-20) offset is fine.
+  const hourTop = stuck ? headerH + barH : 80;
+
   // Pre-index by day in London tz
   const byDay = useMemo(() => {
     const map = new Map<string, Session[]>();
@@ -147,8 +185,14 @@ export function ScheduleBrowser({ sessions, meta }: Props) {
         </p>
       </section>
 
-      {/* Day tabs */}
-      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0 scrollbar-thin">
+      {/* Day tabs - become a sticky sub-nav below the top header once scrolled past */}
+      <div
+        ref={barRef}
+        style={{ top: headerH }}
+        className={`no-scrollbar sticky z-20 -mx-4 overflow-x-auto px-4 sm:-mx-6 sm:px-6 ${
+          stuck ? "border-b border-black/10 bg-sxsw-cream/90 py-2 backdrop-blur" : ""
+        }`}
+      >
         <div className="flex min-w-max gap-2">
           {days.map((d) => {
             const active = d === day;
@@ -299,7 +343,7 @@ export function ScheduleBrowser({ sessions, meta }: Props) {
           )}
           {grouped.map(([hour, items]) => (
             <section key={hour} className="grid grid-cols-1 gap-3 sm:grid-cols-[80px_1fr]">
-              <div className="sticky top-20 hidden self-start sm:block">
+              <div style={{ top: hourTop }} className="sticky hidden self-start sm:block">
                 <div className="font-mono text-xl font-bold text-sxsw-plum">{hour}</div>
                 <div className="text-xs text-black/40">{items.length} on</div>
               </div>

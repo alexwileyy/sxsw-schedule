@@ -15,6 +15,10 @@ html, body {
 .scrollbar-thin::-webkit-scrollbar-thumb { background: #c5c2bb; border-radius: 4px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
 
+/* Hide the scrollbar while keeping the element scrollable (used by the day bar). */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
 @keyframes pulse-ring {
   0% { box-shadow: 0 0 0 0 rgba(255, 45, 135, 0.55); }
   70% { box-shadow: 0 0 0 14px rgba(255, 45, 135, 0); }
