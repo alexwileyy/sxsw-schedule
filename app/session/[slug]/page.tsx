@@ -1,6 +1,8 @@
 import { getSessionBySlug, getSessions } from "@/lib/data";
 import { fmtDayLong, fmtTime, durationMin, plain } from "@/lib/format";
+import { buildMapQuery } from "@/lib/venues";
 import { MatchBadge } from "@/components/MatchBadge";
+import { MapButton } from "@/components/MapButton";
 import { StarButton } from "@/components/StarButton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -17,6 +19,7 @@ export default async function SessionPage({ params }: { params: { slug: string }
   if (!s) notFound();
 
   const dur = durationMin(s.start, s.end);
+  const mapQuery = buildMapQuery(s.venue);
   return (
     <article className="mx-auto max-w-3xl space-y-6">
       <Link href="/" className="inline-flex items-center gap-1 text-sm text-black/60 hover:text-black">
@@ -52,6 +55,7 @@ export default async function SessionPage({ params }: { params: { slug: string }
             <span className="font-semibold">{s.venue}</span>
             {s.hall && <span className="text-black/60"> · {s.hall}</span>}
           </div>
+          {mapQuery && <MapButton query={mapQuery} />}
         </div>
       )}
 
