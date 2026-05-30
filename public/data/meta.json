@@ -1,0 +1,495 @@
+{
+  "days": [
+    "2026-06-01",
+    "2026-06-02",
+    "2026-06-03",
+    "2026-06-04",
+    "2026-06-05",
+    "2026-06-06"
+  ],
+  "categories": [
+    [
+      "Mentor",
+      694
+    ],
+    [
+      "Mentors",
+      694
+    ],
+    [
+      "Conference",
+      655
+    ],
+    [
+      "Mentor Hour",
+      635
+    ],
+    [
+      "Music",
+      531
+    ],
+    [
+      "Screen, Story & Sound",
+      505
+    ],
+    [
+      "Panels & Presentations",
+      381
+    ],
+    [
+      "For Leaders",
+      298
+    ],
+    [
+      "For Creatives",
+      280
+    ],
+    [
+      "Screen",
+      273
+    ],
+    [
+      "Music Artist",
+      224
+    ],
+    [
+      "Venture",
+      216
+    ],
+    [
+      "For Founders",
+      205
+    ],
+    [
+      "For Marketers",
+      188
+    ],
+    [
+      "Panel Discussion",
+      173
+    ],
+    [
+      "For Techies",
+      106
+    ],
+    [
+      "Partnerships",
+      99
+    ],
+    [
+      "Fireside Chat",
+      98
+    ],
+    [
+      "Presentation",
+      97
+    ],
+    [
+      "Film & Series",
+      97
+    ],
+    [
+      "Networking",
+      94
+    ],
+    [
+      "Top Talent (App & Website Carousel/Featured)",
+      85
+    ],
+    [
+      "Feature Film",
+      85
+    ],
+    [
+      "Society Rewired",
+      70
+    ],
+    [
+      "For Designers",
+      52
+    ],
+    [
+      "Technology & AI",
+      45
+    ],
+    [
+      "Marketing & Advertising",
+      43
+    ],
+    [
+      "For the Planet",
+      41
+    ],
+    [
+      "Roundtable",
+      41
+    ],
+    [
+      "Roundtables",
+      37
+    ],
+    [
+      "Happy Hours & Meet Ups",
+      30
+    ],
+    [
+      "Classes",
+      29
+    ],
+    [
+      "Design",
+      29
+    ],
+    [
+      "Meetups",
+      27
+    ],
+    [
+      "For UI/IX Designer & Developers",
+      27
+    ],
+    [
+      "Creator Economy",
+      22
+    ],
+    [
+      "Meetup",
+      21
+    ],
+    [
+      "Health & Medtech",
+      20
+    ],
+    [
+      "Frontier Technologies",
+      19
+    ],
+    [
+      "Startup Academy",
+      18
+    ],
+    [
+      "London 2050",
+      18
+    ],
+    [
+      "Innovation & Transformation",
+      15
+    ],
+    [
+      "Special Guest",
+      14
+    ],
+    [
+      "Parties",
+      14
+    ],
+    [
+      "Competition",
+      13
+    ],
+    [
+      "Exercise & Movement",
+      12
+    ],
+    [
+      "Happy Hours",
+      12
+    ],
+    [
+      "Heartwarmers",
+      12
+    ],
+    [
+      "Fintech & Digital Commerce",
+      12
+    ],
+    [
+      "Collisions",
+      12
+    ],
+    [
+      "New Human Experiences & AI",
+      12
+    ],
+    [
+      "Workshop",
+      11
+    ],
+    [
+      "Brand House",
+      10
+    ],
+    [
+      "Sport",
+      10
+    ],
+    [
+      "Visionaries",
+      10
+    ],
+    [
+      "Podcasting",
+      10
+    ],
+    [
+      "Shivers",
+      10
+    ],
+    [
+      "Headliner",
+      9
+    ],
+    [
+      "Short Film",
+      9
+    ],
+    [
+      "Group Chat",
+      9
+    ],
+    [
+      "Group Chats",
+      9
+    ],
+    [
+      "Connection Spaces",
+      8
+    ],
+    [
+      "Unreal Realities",
+      8
+    ],
+    [
+      "Youth Mental Health Hub",
+      6
+    ],
+    [
+      "Learning & Development",
+      6
+    ],
+    [
+      "Workshops",
+      6
+    ],
+    [
+      "Gaming & Interactive Worlds",
+      6
+    ],
+    [
+      "Places to Connect",
+      5
+    ],
+    [
+      "XR",
+      5
+    ],
+    [
+      "Keynote",
+      5
+    ],
+    [
+      "Experience",
+      4
+    ],
+    [
+      "Series",
+      4
+    ],
+    [
+      "Major Partner",
+      3
+    ],
+    [
+      "Screen Partner",
+      3
+    ],
+    [
+      "Activation Partner",
+      3
+    ],
+    [
+      "Partner",
+      2
+    ],
+    [
+      "Networking Partner",
+      2
+    ],
+    [
+      "Speaker",
+      2
+    ],
+    [
+      "Co-Curator",
+      2
+    ],
+    [
+      "Ecosystem Partners",
+      2
+    ],
+    [
+      "Creative Expo Partner",
+      1
+    ],
+    [
+      "Conference Partner",
+      1
+    ],
+    [
+      "International House",
+      1
+    ],
+    [
+      "Q & A",
+      1
+    ],
+    [
+      "Music Video",
+      1
+    ],
+    [
+      "Official Showcase",
+      1
+    ],
+    [
+      "Awards & Competition",
+      1
+    ]
+  ],
+  "venues": [
+    [
+      "Mentoring at The Courthouse",
+      694
+    ],
+    [
+      "Truman Brewery",
+      172
+    ],
+    [
+      "Protein Studios",
+      98
+    ],
+    [
+      "Shoreditch Town Hall",
+      98
+    ],
+    [
+      "Rich Mix",
+      77
+    ],
+    [
+      "Christ Church Spitalfields",
+      46
+    ],
+    [
+      "Juju's Bar & Stage",
+      45
+    ],
+    [
+      "Devonshire Square",
+      32
+    ],
+    [
+      "Curzon Hoxton",
+      32
+    ],
+    [
+      "93 Feet East",
+      31
+    ],
+    [
+      "Colours Hoxton",
+      31
+    ],
+    [
+      "Conference Roundtables at Truman Brewery's Half Press Room",
+      25
+    ],
+    [
+      "83 Rivington Street",
+      22
+    ],
+    [
+      "Village Underground",
+      20
+    ],
+    [
+      "Dream Bags Jaguar Shoes",
+      18
+    ],
+    [
+      "Unlocked",
+      17
+    ],
+    [
+      "XOYO",
+      16
+    ],
+    [
+      "Bike Shed Moto Co",
+      11
+    ],
+    [
+      "Barbican Centre",
+      8
+    ],
+    [
+      "Brick Lane Yard",
+      7
+    ],
+    [
+      "H.O.M.E",
+      7
+    ],
+    [
+      "Dishoom",
+      5
+    ],
+    [
+      "Bangla House",
+      5
+    ],
+    [
+      "Fora - The Black & White Building",
+      4
+    ],
+    [
+      "Shoreditch Tab Centre",
+      4
+    ],
+    [
+      "Fora - 35-41 Folgate Street",
+      3
+    ],
+    [
+      "Shoreditch Arts Club",
+      2
+    ],
+    [
+      "Spitalfields",
+      1
+    ],
+    [
+      "MOTHER",
+      1
+    ],
+    [
+      "The Hoxton",
+      1
+    ],
+    [
+      "Stink Offices",
+      1
+    ],
+    [
+      "Fora - Montacute Yards",
+      1
+    ],
+    [
+      "Hidden Grooves",
+      1
+    ]
+  ],
+  "total": 1541
+}

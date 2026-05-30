@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  background: #F6F4EE;
+  color: #0B0B0F;
+}
+
+.scrollbar-thin::-webkit-scrollbar { height: 8px; width: 8px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #c5c2bb; border-radius: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(255, 45, 135, 0.55); }
+  70% { box-shadow: 0 0 0 14px rgba(255, 45, 135, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 45, 135, 0); }
+}
+.match-badge-high { animation: pulse-ring 2.4s ease-out infinite; }
