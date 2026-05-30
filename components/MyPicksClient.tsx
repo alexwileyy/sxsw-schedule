@@ -22,7 +22,7 @@ function groupByVenue(items: Session[]): [string, Session[]][] {
 }
 
 export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
-  const { ids, clear } = useShortlist();
+  const { ids, clear, ready } = useShortlist();
   const [byVenue, setByVenue] = useState(false);
 
   const picks = useMemo(
@@ -57,6 +57,14 @@ export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
   const conflictMap = useMemo(() => conflictsBySession(picks), [picks]);
 
   const totalConflicts = conflictsByDay.reduce((sum, [, g]) => sum + g.length, 0);
+
+  if (!ready) {
+    return (
+      <div className="rounded-3xl border border-dashed border-black/15 bg-white p-10 text-center text-sm text-black/50">
+        Loading your picks...
+      </div>
+    );
+  }
 
   if (picks.length === 0) {
     return (

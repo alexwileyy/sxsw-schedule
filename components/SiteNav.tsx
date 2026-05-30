@@ -1,9 +1,11 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Calendar, Star, Info, Menu, X } from "lucide-react";
+import { Calendar, Star, Info, Menu, X, LogIn, LogOut } from "lucide-react";
+import { useUser } from "@/lib/useUser";
+import { createClient } from "@/utils/supabase/client";
 
 const NAV = [
   { href: "/", label: "Schedule", Icon: Calendar },
@@ -13,7 +15,15 @@ const NAV = [
 
 export function SiteNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { email, avatarUrl, ready } = useUser();
   const [open, setOpen] = useState(false);
+
+  const signOut = async () => {
+    await createClient().auth.signOut();
+    router.refresh();
+    router.push("/");
+  };
 
   // While the full-screen menu is open, lock background scroll and let Escape close it.
   useEffect(() => {
@@ -47,6 +57,42 @@ export function SiteNav() {
             {label}
           </Link>
         ))}
+        {ready && (
+          <span className="ml-1 flex items-center gap-2 border-l border-black/10 pl-2">
+            {email ? (
+              <>
+                {avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={avatarUrl}
+                    alt={email}
+                    title={email}
+                    referrerPolicy="no-referrer"
+                    className="h-7 w-7 rounded-full border border-black/10 object-cover"
+                  />
+                ) : (
+                  <span className="hidden text-xs text-black/50 lg:inline">{email}</span>
+                )}
+                <button
+                  type="button"
+                  onClick={signOut}
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 hover:bg-black/5"
+                >
+                  <LogOut size={16} />
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 hover:bg-black/5"
+              >
+                <LogIn size={16} />
+                Sign in
+              </Link>
+            )}
+          </span>
+        )}
       </nav>
 
       {/* Mobile trigger */}
@@ -93,7 +139,48 @@ export function SiteNav() {
                   {label}
                 </Link>
               ))}
+              {ready &&
+                (email ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      void signOut();
+                    }}
+                    className="flex items-center gap-3 px-6 py-3 text-2xl font-semibold text-sxsw-black transition hover:text-sxsw-plum"
+                  >
+                    <LogOut size={28} />
+                    Sign out
+                  </button>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 px-6 py-3 text-2xl font-semibold text-sxsw-black transition hover:text-sxsw-plum"
+                  >
+                    <LogIn size={28} />
+                    Sign in
+                  </Link>
+                ))}
             </nav>
+            {email && (
+              <div className="flex items-center justify-center gap-2 border-t border-black/10 px-4 py-3 text-xs text-black/50">
+                {avatarUrl ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={avatarUrl}
+                      alt={email}
+                      referrerPolicy="no-referrer"
+                      className="h-6 w-6 rounded-full border border-black/10 object-cover"
+                    />
+                    <span>{email}</span>
+                  </>
+                ) : (
+                  <span>Signed in as {email}</span>
+                )}
+              </div>
+            )}
           </div>,
           document.body
         )}
