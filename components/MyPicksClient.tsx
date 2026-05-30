@@ -1,14 +1,29 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { Session } from "@/lib/types";
 import { useShortlist } from "@/lib/store";
-import { findConflicts } from "@/lib/conflicts";
+import { findConflicts, conflictsBySession } from "@/lib/conflicts";
 import { downloadIcs } from "@/lib/ics";
 import { fmtDayLong, fmtTime, londonDayKey } from "@/lib/format";
 import { SessionCard } from "./SessionCard";
 
+// Sub-group a day's sessions by venue. Items arrive already sorted by start time,
+// so each venue's list stays chronological and we order the venue groups by their
+// earliest session - keeping the day reading roughly top-to-bottom in time.
+function groupByVenue(items: Session[]): [string, Session[]][] {
+  const m = new Map<string, Session[]>();
+  for (const s of items) {
+    const k = s.venue ?? "Location TBA";
+    const arr = m.get(k) ?? [];
+    arr.push(s);
+    m.set(k, arr);
+  }
+  return [...m.entries()].sort((a, b) => ((a[1][0]?.start ?? "") < (b[1][0]?.start ?? "") ? -1 : 1));
+}
+
 export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
   const { ids, clear } = useShortlist();
+  const [byVenue, setByVenue] = useState(false);
 
   const picks = useMemo(
     () => allSessions.filter((s) => ids.has(s.id)).sort((a, b) => (a.start! < b.start! ? -1 : 1)),
@@ -36,13 +51,10 @@ export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
     downloadIcs("sxsw-london-2026.ics", picks);
   };
 
-  const conflictSessionIds = useMemo(() => {
-    const s = new Set<string>();
-    for (const [, groups] of conflictsByDay) {
-      for (const g of groups) for (const sess of g.sessions) s.add(sess.id);
-    }
-    return s;
-  }, [conflictsByDay]);
+  // Strict pairwise overlaps, keyed by session id - powers both the per-card
+  // "clashes with" callout and the amber ring. Different days never overlap, so
+  // computing across all picks at once is safe and simpler than per-day.
+  const conflictMap = useMemo(() => conflictsBySession(picks), [picks]);
 
   const totalConflicts = conflictsByDay.reduce((sum, [, g]) => sum + g.length, 0);
 
@@ -89,8 +101,31 @@ export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
         </div>
       </section>
 
+      <div className="flex items-center justify-end">
+        <label className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-3 py-2 text-sm">
+          <input
+            type="checkbox"
+            checked={byVenue}
+            onChange={(e) => setByVenue(e.target.checked)}
+            className="accent-sxsw-pink"
+          />
+          Group by location
+        </label>
+      </div>
+
       {byDay.map(([day, items], i) => {
         const conflicts = conflictsByDay[i][1];
+        const renderCard = (s: Session) => {
+          const clashes = conflictMap.get(s.id) ?? [];
+          return (
+            <div
+              key={s.id}
+              className={clashes.length > 0 ? "rounded-2xl ring-2 ring-amber-300" : ""}
+            >
+              <SessionCard s={s} conflictsWith={clashes} />
+            </div>
+          );
+        };
         return (
           <section key={day} className="space-y-3">
             <header className="flex items-baseline justify-between">
@@ -110,16 +145,21 @@ export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
               </div>
             )}
 
-            <div className="space-y-2.5">
-              {items.map((s) => (
-                <div
-                  key={s.id}
-                  className={conflictSessionIds.has(s.id) ? "ring-2 ring-amber-300 rounded-2xl" : ""}
-                >
-                  <SessionCard s={s} />
-                </div>
-              ))}
-            </div>
+            {byVenue ? (
+              <div className="space-y-4">
+                {groupByVenue(items).map(([venue, vItems]) => (
+                  <div key={venue} className="space-y-2.5">
+                    <div className="flex items-baseline justify-between border-b border-black/10 pb-1">
+                      <h3 className="text-sm font-semibold text-sxsw-plum">{venue}</h3>
+                      <span className="text-xs text-black/50">{vItems.length} sessions</span>
+                    </div>
+                    {vItems.map(renderCard)}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-2.5">{items.map(renderCard)}</div>
+            )}
           </section>
         );
       })}

@@ -5,7 +5,7 @@ import { fmtTime, durationMin, plain } from "@/lib/format";
 import { MatchBadge } from "./MatchBadge";
 import { StarButton } from "./StarButton";
 
-export function SessionCard({ s }: { s: Session }) {
+export function SessionCard({ s, conflictsWith }: { s: Session; conflictsWith?: Session[] }) {
   const dur = durationMin(s.start, s.end);
   const isTop = s.score >= 75;
   return (
@@ -44,6 +44,18 @@ export function SessionCard({ s }: { s: Session }) {
           )}
           {s.description && (
             <p className="mt-2 line-clamp-2 text-sm text-black/70">{plain(s.description)}</p>
+          )}
+          {conflictsWith && conflictsWith.length > 0 && (
+            <div className="mt-2 rounded-xl border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              <div className="font-semibold">⚠ Clashes with</div>
+              <ul className="mt-1 space-y-0.5">
+                {conflictsWith.map((c) => (
+                  <li key={c.id}>
+                    {fmtTime(c.start)}-{fmtTime(c.end)} · {c.title}
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
         <div className="flex flex-col items-end gap-2">
