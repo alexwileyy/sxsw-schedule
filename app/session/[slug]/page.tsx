@@ -4,7 +4,7 @@ import { buildMapQuery } from "@/lib/venues";
 import { MatchBadge } from "@/components/MatchBadge";
 import { MapButton } from "@/components/MapButton";
 import { StarButton } from "@/components/StarButton";
-import Link from "next/link";
+import { BackButton } from "@/components/BackButton";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-static";
@@ -22,9 +22,7 @@ export default async function SessionPage({ params }: { params: { slug: string }
   const mapQuery = buildMapQuery(s.venue);
   return (
     <article className="mx-auto max-w-3xl space-y-6">
-      <Link href="/" className="inline-flex items-center gap-1 text-sm text-black/60 hover:text-black">
-        ← Back to schedule
-      </Link>
+      <BackButton />
 
       <div className="space-y-3">
         <div className="flex items-center gap-2 text-sm text-black/60">
