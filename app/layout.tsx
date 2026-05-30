@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
+import { SiteNav } from "@/components/SiteNav";
 
 export const metadata: Metadata = {
   title: "SXSW London 2026 - Alex's Schedule",
@@ -17,11 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span className="text-2xl font-black tracking-tight">SXSW</span>
               <span className="text-sm uppercase tracking-[0.2em] text-sxsw-plum">London 2026</span>
             </Link>
-            <nav className="flex items-center gap-1 text-sm font-medium">
-              <Link className="rounded-full px-3 py-1.5 hover:bg-black/5" href="/">Schedule</Link>
-              <Link className="rounded-full px-3 py-1.5 hover:bg-black/5" href="/picks">My Picks</Link>
-              <Link className="rounded-full px-3 py-1.5 hover:bg-black/5" href="/about">About</Link>
-            </nav>
+            <SiteNav />
           </div>
         </header>
         <main className="mx-auto max-w-7xl px-4 pb-24 pt-6 sm:px-6">{children}</main>
