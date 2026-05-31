@@ -21,7 +21,7 @@ html, body {
 
 @keyframes pulse-ring {
   0% { box-shadow: 0 0 0 0 rgba(255, 45, 135, 0.55); }
-  70% { box-shadow: 0 0 0 14px rgba(255, 45, 135, 0); }
+  70% { box-shadow: 0 0 0 8px rgba(255, 45, 135, 0); }
   100% { box-shadow: 0 0 0 0 rgba(255, 45, 135, 0); }
 }
 .match-badge-high { animation: pulse-ring 2.4s ease-out infinite; }
