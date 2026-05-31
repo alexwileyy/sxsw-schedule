@@ -32,7 +32,7 @@ export function ScheduleBrowser({ sessions, meta }: Props) {
   const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
   const [cats, setCats] = useState<Set<string>>(() => new Set(splitParam(searchParams.get("cats"))));
   const [venues, setVenues] = useState<Set<string>>(() => new Set(splitParam(searchParams.get("venues"))));
-  const [minScore, setMinScore] = useState<number>(() => Number(searchParams.get("min")) || 0);
+  const [minScore, setMinScore] = useState<number>(() => Number(searchParams.get("min")) || 40);
   const [savedOnly, setSavedOnly] = useState(() => searchParams.get("saved") === "1");
   const [sort, setSort] = useState<SortId>(() => (searchParams.get("sort") === "score" ? "score" : "time"));
   const [showFilters, setShowFilters] = useState(false);
