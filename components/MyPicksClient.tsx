@@ -10,6 +10,7 @@ import { fmtDayLong, fmtTime, londonDayKey } from "@/lib/format";
 import { walkMinutesBetweenVenues } from "@/lib/walking";
 import { SessionCard } from "./SessionCard";
 import { WalkConnector } from "./WalkConnector";
+import { DayBar } from "./DayBar";
 
 // Sub-group a day's sessions by venue. Items arrive already sorted by start time,
 // so each venue's list stays chronological and we order the venue groups by their
@@ -70,6 +71,19 @@ export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
     }
     return [...m.entries()].sort(([a], [b]) => (a < b ? -1 : 1));
   }, [picks]);
+
+  // Day selector: only days that actually have picks. Defaults to the day of the
+  // next session, falling back to the first day with picks. Falls back gracefully
+  // if the selected day no longer has any picks.
+  const dayKeys = useMemo(() => byDay.map(([d]) => d), [byDay]);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const defaultDay = nextSession?.start ? londonDayKey(nextSession.start) : null;
+  const activeDay =
+    selectedDay && dayKeys.includes(selectedDay)
+      ? selectedDay
+      : defaultDay && dayKeys.includes(defaultDay)
+        ? defaultDay
+        : dayKeys[0] ?? null;
 
   const conflictsByDay = useMemo(() => {
     return byDay.map(([day, items]) => [day, findConflicts(items)] as const);
@@ -147,6 +161,15 @@ export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
         )}
       </section>
 
+      {dayKeys.length > 0 && activeDay && (
+        <DayBar
+          days={dayKeys}
+          selected={activeDay}
+          onSelect={setSelectedDay}
+          count={(d) => byDay.find(([k]) => k === d)?.[1].length ?? 0}
+        />
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <label className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-3 py-2 text-sm">
           <input
@@ -176,6 +199,7 @@ export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
       </div>
 
       {byDay.map(([day, items], i) => {
+        if (day !== activeDay) return null;
         const conflicts = conflictsByDay[i][1];
         const renderCard = (s: Session) => {
           const clashes = conflictMap.get(s.id) ?? [];

@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Session, Meta } from "@/lib/types";
-import { fmtDayLong, fmtDayShort, londonDayKey, plain } from "@/lib/format";
+import { fmtDayLong, londonDayKey, plain } from "@/lib/format";
 import { SessionCard } from "./SessionCard";
+import { DayBar } from "./DayBar";
 import { useShortlist } from "@/lib/store";
 
 // Filter names can contain commas/ampersands, so multi-value params are joined
@@ -61,43 +62,11 @@ export function ScheduleBrowser({ sessions, meta }: Props) {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }, [day, query, sort, minScore, savedOnly, cats, venues, days, pathname, router]);
 
-  // The day-tab row sticks below the top header once scrolled past, turning into a
-  // sub-nav bar. We measure the header height (the sticky offset) and detect the
-  // "stuck" state from the bar's own position: when it pins, its top equals the
-  // header height. A scroll listener avoids the containing-block pitfalls of a
-  // sentinel inside the space-y wrapper.
-  const barRef = useRef<HTMLDivElement>(null);
-  const [headerH, setHeaderH] = useState(57);
-  const [barH, setBarH] = useState(0);
-  const [stuck, setStuck] = useState(false);
-
-  useEffect(() => {
-    const header = document.querySelector("header");
-    const measure = () => setHeaderH(header?.offsetHeight ?? 57);
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, []);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const el = barRef.current;
-      if (el) setStuck(el.getBoundingClientRect().top <= headerH);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [headerH]);
-
-  // Re-measure the bar once it sticks (padding is added then), so the hour-label
-  // offset clears the now-taller bar.
-  useEffect(() => {
-    setBarH(barRef.current?.offsetHeight ?? 0);
-  }, [stuck, headerH]);
-
-  // Offset the timeline's sticky hour labels below the stuck bar so they don't tuck
-  // behind it; when the bar isn't stuck the original 80px (top-20) offset is fine.
-  const hourTop = stuck ? headerH + barH : 80;
+  // The DayBar reports its stuck state and bottom offset; we dock the timeline's
+  // sticky hour labels just below it when stuck (otherwise the original 80px).
+  const [sticky, setSticky] = useState({ stuck: false, offset: 0 });
+  const handleSticky = useCallback((info: { stuck: boolean; offset: number }) => setSticky(info), []);
+  const hourTop = sticky.stuck ? sticky.offset : 80;
 
   // Pre-index by day in London tz
   const byDay = useMemo(() => {
@@ -185,38 +154,14 @@ export function ScheduleBrowser({ sessions, meta }: Props) {
         </p>
       </section>
 
-      {/* Day tabs - become a sticky sub-nav below the top header once scrolled past */}
-      <div
-        ref={barRef}
-        style={{ top: headerH }}
-        className={`no-scrollbar sticky z-20 -mx-4 overflow-x-auto px-4 sm:-mx-6 sm:px-6 ${
-          stuck ? "border-b border-black/10 bg-sxsw-cream/90 py-2 backdrop-blur" : ""
-        }`}
-      >
-        <div className="flex min-w-max gap-2">
-          {days.map((d) => {
-            const active = d === day;
-            const count = byDay.get(d)?.length ?? 0;
-            return (
-              <button
-                key={d}
-                onClick={() => setDay(d)}
-                className={`flex flex-col items-start rounded-2xl border px-4 py-2.5 text-left transition ${
-                  active
-                    ? "border-sxsw-black bg-sxsw-black text-sxsw-cream"
-                    : "border-black/10 bg-white text-sxsw-black hover:border-black/30"
-                }`}
-              >
-                <span className="text-xs font-medium uppercase tracking-wider opacity-80">
-                  {fmtDayShort(d)}
-                </span>
-                <span className="text-base font-semibold">{fmtDayLong(d).replace(/, .*$/, "")}</span>
-                <span className="text-[11px] opacity-70">{count} sessions</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {/* Day selector - sticky sub-nav below the top header once scrolled past */}
+      <DayBar
+        days={days}
+        selected={day}
+        onSelect={setDay}
+        count={(d) => byDay.get(d)?.length ?? 0}
+        onStickyChange={handleSticky}
+      />
 
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-2">
