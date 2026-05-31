@@ -1,12 +1,15 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import type { Session } from "@/lib/types";
 import { useShortlist } from "@/lib/store";
 import { findConflicts, conflictsBySession } from "@/lib/conflicts";
 import { downloadIcs } from "@/lib/ics";
 import { fmtDayLong, fmtTime, londonDayKey } from "@/lib/format";
+import { walkMinutesBetweenVenues } from "@/lib/walking";
 import { SessionCard } from "./SessionCard";
+import { WalkConnector } from "./WalkConnector";
 
 // Sub-group a day's sessions by venue. Items arrive already sorted by start time,
 // so each venue's list stays chronological and we order the venue groups by their
@@ -43,6 +46,18 @@ export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
     () => allSessions.filter((s) => ids.has(s.id)).sort((a, b) => (a.start! < b.start! ? -1 : 1)),
     [allSessions, ids]
   );
+
+  // The soonest pick that hasn't finished yet - surfaced in the header. picks are
+  // already sorted by start, so the first one still ahead of "now" is next up.
+  const nextSession = useMemo(() => {
+    const now = Date.now();
+    return (
+      picks.find((p) => {
+        const t = p.end ?? p.start;
+        return t ? new Date(t).getTime() >= now : false;
+      }) ?? null
+    );
+  }, [picks]);
 
   const byDay = useMemo(() => {
     const m = new Map<string, Session[]>();
@@ -95,35 +110,44 @@ export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
 
   return (
     <div className="space-y-6">
-      <section className="flex flex-wrap items-end justify-between gap-3 rounded-3xl bg-sxsw-black p-6 text-sxsw-cream sm:p-8">
-        <div>
-          <div className="text-xs uppercase tracking-[0.3em] text-sxsw-lime">My Picks</div>
-          <h1 className="mt-1 font-display text-3xl">{picks.length} sessions saved</h1>
-          <p className="mt-1 text-sm text-sxsw-cream/70">
-            {totalConflicts > 0
-              ? `${totalConflicts} time overlap${totalConflicts === 1 ? "" : "s"} to resolve.`
-              : "No conflicts. Looks tight."}
+      <section className="rounded-3xl bg-sxsw-black p-6 text-sxsw-cream sm:p-8">
+        <div className="text-xs uppercase tracking-[0.3em] text-sxsw-lime">Your next session</div>
+        {nextSession ? (
+          <div className="mt-2">
+            <h1 className="font-display text-2xl leading-tight sm:text-3xl">{nextSession.title}</h1>
+            <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-sxsw-cream/80">
+              <span className="font-mono font-semibold text-sxsw-cream">
+                {nextSession.start ? fmtDayLong(nextSession.start) : ""}
+                {nextSession.start ? ` · ${fmtTime(nextSession.start)}` : ""}
+                {nextSession.end ? ` - ${fmtTime(nextSession.end)}` : ""}
+              </span>
+              {nextSession.venue && (
+                <span>
+                  · {nextSession.venue}
+                  {nextSession.hall ? <span className="text-sxsw-cream/60"> ({nextSession.hall})</span> : null}
+                </span>
+              )}
+            </div>
+            <Link
+              href={`/session/${nextSession.slug}`}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-sxsw-lime px-5 py-2 text-sm font-semibold text-sxsw-black hover:brightness-95"
+            >
+              Open session →
+            </Link>
+          </div>
+        ) : (
+          <p className="mt-2 text-sm text-sxsw-cream/80">
+            No upcoming sessions in your picks - you&apos;re all caught up.
           </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={onExport}
-            className="rounded-full bg-sxsw-lime px-5 py-2 text-sm font-semibold text-sxsw-black hover:brightness-95"
-          >
-            Export to calendar (.ics)
-          </button>
-          <button
-            onClick={() => {
-              if (confirm("Clear all picks? This can't be undone.")) clear();
-            }}
-            className="rounded-full border border-white/20 px-5 py-2 text-sm hover:bg-white/10"
-          >
-            Clear all
-          </button>
-        </div>
+        )}
+        {totalConflicts > 0 && (
+          <p className="mt-5 text-xs text-sxsw-cream/60">
+            {totalConflicts} time overlap{totalConflicts === 1 ? "" : "s"} to resolve
+          </p>
+        )}
       </section>
 
-      <div className="flex items-center justify-end">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <label className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-3 py-2 text-sm">
           <input
             type="checkbox"
@@ -133,6 +157,22 @@ export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
           />
           Group by location
         </label>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={onExport}
+            className="rounded-full border border-black/15 bg-white px-4 py-2 text-sm text-black/60 hover:border-black/30 hover:text-black"
+          >
+            Export to calendar (.ics)
+          </button>
+          <button
+            onClick={() => {
+              if (confirm("Clear all picks? This can't be undone.")) clear();
+            }}
+            className="rounded-full border border-black/15 bg-white px-4 py-2 text-sm text-black/60 hover:border-black/30 hover:text-black"
+          >
+            Clear all
+          </button>
+        </div>
       </div>
 
       {byDay.map(([day, items], i) => {
@@ -180,7 +220,22 @@ export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
                 ))}
               </div>
             ) : (
-              <div className="space-y-2.5">{items.map(renderCard)}</div>
+              <div className="space-y-2.5">
+                {items.map((s, idx) => {
+                  // Between consecutive picks at a different venue, show the walking
+                  // time. Only here (day view) - never when grouped by location.
+                  const prev = idx > 0 ? items[idx - 1] : null;
+                  const moving = prev && prev.venue && s.venue && prev.venue !== s.venue;
+                  return (
+                    <Fragment key={s.id}>
+                      {moving && (
+                        <WalkConnector minutes={walkMinutesBetweenVenues(prev!.venue, s.venue)} />
+                      )}
+                      {renderCard(s)}
+                    </Fragment>
+                  );
+                })}
+              </div>
             )}
           </section>
         );
