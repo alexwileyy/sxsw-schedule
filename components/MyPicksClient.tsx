@@ -244,18 +244,28 @@ export function MyPicksClient({ allSessions }: { allSessions: Session[] }) {
                 ))}
               </div>
             ) : (
-              <div className="space-y-2.5">
+              // No space-y here: a card preceded by a walking connector sits flush
+              // against it (mt-0) so the dotted line bridges the two cards
+              // seamlessly; otherwise cards keep the usual 2.5 gap.
+              <div>
                 {items.map((s, idx) => {
                   // Between consecutive picks at a different venue, show the walking
                   // time. Only here (day view) - never when grouped by location.
                   const prev = idx > 0 ? items[idx - 1] : null;
-                  const moving = prev && prev.venue && s.venue && prev.venue !== s.venue;
+                  const moving = !!(prev && prev.venue && s.venue && prev.venue !== s.venue);
+                  const clashes = conflictMap.get(s.id) ?? [];
                   return (
                     <Fragment key={s.id}>
                       {moving && (
                         <WalkConnector minutes={walkMinutesBetweenVenues(prev!.venue, s.venue)} />
                       )}
-                      {renderCard(s)}
+                      <div
+                        className={`${idx === 0 || moving ? "" : "mt-2.5"} ${
+                          clashes.length > 0 ? "rounded-2xl ring-2 ring-amber-300" : ""
+                        }`}
+                      >
+                        <SessionCard s={s} conflictsWith={clashes} />
+                      </div>
                     </Fragment>
                   );
                 })}
